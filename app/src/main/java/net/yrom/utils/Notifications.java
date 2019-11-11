@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.yrom.screenrecorder;
+package net.yrom.utils;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -28,14 +28,17 @@ import android.os.Build;
 import android.os.SystemClock;
 import android.text.format.DateUtils;
 
+import net.yrom.screenrecorder.R;
+
 import static android.os.Build.VERSION_CODES.O;
-import static net.yrom.screenrecorder.MainActivity.ACTION_STOP;
+import static net.yrom.screenrecorder.app.MainActivity.ACTION_STOP;
 
 /**
  * @author yrom
  * @version 2017/12/1
  */
-class Notifications extends ContextWrapper {
+public class Notifications extends ContextWrapper {
+    private final static String TAG = "Notifications";
     private static final int id = 0x1fff;
     private static final String CHANNEL_ID = "Recording";
     private static final String CHANNEL_NAME = "Screen Recorder Notifications";
@@ -45,7 +48,7 @@ class Notifications extends ContextWrapper {
     private Notification.Action mStopAction;
     private Notification.Builder mBuilder;
 
-    Notifications(Context context) {
+    public Notifications(Context context) {
         super(context);
         if (Build.VERSION.SDK_INT >= O) {
             createNotificationChannel();
@@ -100,7 +103,7 @@ class Notifications extends ContextWrapper {
         return mStopAction;
     }
 
-    void clear() {
+    public void clear() {
         mLastFiredTime = 0;
         mBuilder = null;
         mStopAction = null;

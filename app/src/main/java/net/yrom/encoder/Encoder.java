@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.yrom.screenrecorder;
+package net.yrom.encoder;
 
 import java.io.IOException;
 
@@ -22,7 +22,7 @@ import java.io.IOException;
  * @author yrom
  * @version 2017/12/4
  */
-interface Encoder {
+public interface Encoder {
     void prepare() throws IOException;
 
     void stop();

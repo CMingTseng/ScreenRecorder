@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.yrom.screenrecorder;
+package net.yrom.encoder.audio;
 
 import android.media.MediaFormat;
 
@@ -25,15 +25,15 @@ import java.util.Objects;
  * @version 2017/12/3
  */
 public class AudioEncodeConfig {
+    private final static String TAG = "AudioEncodeConfig";
     final String codecName;
     final String mimeType;
     final int bitRate;
-    final int sampleRate;
-    final int channelCount;
+    public final int sampleRate;
+    public final int channelCount;
     final int profile;
 
-    public AudioEncodeConfig(String codecName, String mimeType,
-                             int bitRate, int sampleRate, int channelCount, int profile) {
+    public AudioEncodeConfig(String codecName, String mimeType, int bitRate, int sampleRate, int channelCount, int profile) {
         this.codecName = codecName;
         this.mimeType = Objects.requireNonNull(mimeType);
         this.bitRate = bitRate;

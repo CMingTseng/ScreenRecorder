@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.yrom.screenrecorder.view;
+package net.yrom.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;

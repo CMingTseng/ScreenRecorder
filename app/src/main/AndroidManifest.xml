@@ -11,7 +11,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name="net.yrom.screenrecorder.MainActivity"
+            android:name="net.yrom.screenrecorder.app.MainActivity"
             android:configChanges="screenLayout|orientation|screenSize"
             android:label="@string/app_name" >
             <intent-filter>

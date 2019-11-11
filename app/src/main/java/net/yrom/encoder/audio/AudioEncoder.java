@@ -14,18 +14,21 @@
  * limitations under the License.
  */
 
-package net.yrom.screenrecorder;
+package net.yrom.encoder.audio;
 
 import android.media.MediaFormat;
+
+import net.yrom.encoder.BaseEncoder;
 
 /**
  * @author yrom
  * @version 2017/12/3
  */
-class AudioEncoder extends BaseEncoder {
+public class AudioEncoder extends BaseEncoder {
+    private final static String TAG = "AudioEncoder";
     private final AudioEncodeConfig mConfig;
 
-    AudioEncoder(AudioEncodeConfig config) {
+    public AudioEncoder(AudioEncodeConfig config) {
         super(config.codecName);
         this.mConfig = config;
     }
@@ -34,5 +37,4 @@ class AudioEncoder extends BaseEncoder {
     protected MediaFormat createMediaFormat() {
         return mConfig.toFormat();
     }
-
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.yrom.screenrecorder;
+package net.yrom.recoder;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -29,6 +29,11 @@ import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseLongArray;
+
+import net.yrom.encoder.BaseEncoder;
+import net.yrom.encoder.Encoder;
+import net.yrom.encoder.audio.AudioEncodeConfig;
+import net.yrom.encoder.audio.AudioEncoder;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -112,11 +117,9 @@ class MicRecorder implements Encoder {
         Message.obtain(mRecordHandler, MSG_RELEASE_OUTPUT, index, 0).sendToTarget();
     }
 
-
     ByteBuffer getOutputBuffer(int index) {
         return mEncoder.getOutputBuffer(index);
     }
-
 
     private static class CallbackDelegate extends Handler {
         private BaseEncoder.Callback mCallback;
@@ -125,7 +128,6 @@ class MicRecorder implements Encoder {
             super(l);
             this.mCallback = callback;
         }
-
 
         void onError(Encoder encoder, Exception exception) {
             Message.obtain(this, () -> {
@@ -150,7 +152,6 @@ class MicRecorder implements Encoder {
                 }
             }).sendToTarget();
         }
-
     }
 
     private static final int MSG_PREPARE = 0;
@@ -161,7 +162,6 @@ class MicRecorder implements Encoder {
     private static final int MSG_RELEASE = 5;
 
     private class RecordHandler extends Handler {
-
         private LinkedList<MediaCodec.BufferInfo> mCachedInfos = new LinkedList<>();
         private LinkedList<Integer> mMuxingOutputBufferIndices = new LinkedList<>();
         private int mPollRate = 2048_000 / mSampleRate; // poll per 2048 samples
@@ -250,7 +250,6 @@ class MicRecorder implements Encoder {
                 }
                 mMuxingOutputBufferIndices.offer(index);
                 mCallbackDelegate.onOutputBufferAvailable(mEncoder, index, info);
-
             }
         }
 
@@ -299,13 +298,11 @@ class MicRecorder implements Encoder {
         mEncoder.queueInputBuffer(index, offset, read, pstTs, flags);
     }
 
-
     private static final int LAST_FRAME_ID = -1;
     private SparseLongArray mFramesUsCache = new SparseLongArray(2);
 
     /**
-     * Gets presentation time (us) of polled frame.
-     * 1 sample = 16 bit
+     * Gets presentation time (us) of polled frame. 1 sample = 16 bit
      */
     private long calculateFrameTimestamp(int totalBits) {
         int samples = totalBits >> 4;
@@ -361,5 +358,4 @@ class MicRecorder implements Encoder {
         }
         return record;
     }
-
 }

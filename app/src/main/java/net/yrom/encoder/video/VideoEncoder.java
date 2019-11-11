@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package net.yrom.screenrecorder;
+package net.yrom.encoder.video;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
 import android.util.Log;
 import android.view.Surface;
+
+import net.yrom.encoder.BaseEncoder;
 
 import java.util.Objects;
 
@@ -27,13 +29,13 @@ import java.util.Objects;
  * @author yrom
  * @version 2017/12/3
  */
-class VideoEncoder extends BaseEncoder {
+public class VideoEncoder extends BaseEncoder {
+    private final static String TAG = "VideoEncoder";
     private static final boolean VERBOSE = false;
     private VideoEncodeConfig mConfig;
     private Surface mSurface;
 
-
-    VideoEncoder(VideoEncodeConfig config) {
+    public VideoEncoder(VideoEncodeConfig config) {
         super(config.codecName);
         this.mConfig = config;
     }
@@ -52,7 +54,7 @@ class VideoEncoder extends BaseEncoder {
     /**
      * @throws NullPointerException if prepare() not call
      */
-    Surface getInputSurface() {
+    public Surface getInputSurface() {
         return Objects.requireNonNull(mSurface, "doesn't prepare()");
     }
 
@@ -64,6 +66,4 @@ class VideoEncoder extends BaseEncoder {
         }
         super.release();
     }
-
-
 }

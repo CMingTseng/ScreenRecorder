@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.yrom.screenrecorder;
+package net.yrom.encoder;
 
 import android.media.MediaCodec;
 import android.media.MediaFormat;
@@ -29,22 +29,24 @@ import java.util.Objects;
  * @author yrom
  * @version 2017/12/4
  */
-abstract class BaseEncoder implements Encoder {
-    static abstract class Callback implements Encoder.Callback {
+public abstract class BaseEncoder implements Encoder {
+    private final static String TAG = "BaseEncoder";
+
+    public static abstract class Callback implements Encoder.Callback {
         void onInputBufferAvailable(BaseEncoder encoder, int index) {
         }
 
-        void onOutputFormatChanged(BaseEncoder encoder, MediaFormat format) {
+        public void onOutputFormatChanged(BaseEncoder encoder, MediaFormat format) {
         }
 
-        void onOutputBufferAvailable(BaseEncoder encoder, int index, MediaCodec.BufferInfo info) {
+        public void onOutputBufferAvailable(BaseEncoder encoder, int index, MediaCodec.BufferInfo info) {
         }
     }
 
-    BaseEncoder() {
+    public BaseEncoder() {
     }
 
-    BaseEncoder(String codecName) {
+    public BaseEncoder(String codecName) {
         this.mCodecName = codecName;
     }
 
@@ -94,10 +96,8 @@ abstract class BaseEncoder implements Encoder {
     }
 
     /**
-     * call immediately after {@link #getEncoder() MediaCodec}
-     * configure with {@link #createMediaFormat() MediaFormat} success
-     *
-     * @param encoder
+     * call immediately after {@link #getEncoder() MediaCodec} configure with {@link
+     * #createMediaFormat() MediaFormat} success
      */
     protected void onEncoderConfigured(MediaCodec encoder) {
     }
@@ -122,7 +122,7 @@ abstract class BaseEncoder implements Encoder {
      */
     protected abstract MediaFormat createMediaFormat();
 
-    protected final MediaCodec getEncoder() {
+    public final MediaCodec getEncoder() {
         return Objects.requireNonNull(mEncoder, "doesn't prepare()");
     }
 

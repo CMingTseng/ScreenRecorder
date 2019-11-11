@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.yrom.screenrecorder;
+package net.yrom.screenrecorder.app;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -50,7 +50,14 @@ import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import net.yrom.screenrecorder.view.NamedSpinner;
+import net.yrom.encoder.audio.AudioEncodeConfig;
+import net.yrom.encoder.video.VideoEncodeConfig;
+import net.yrom.recoder.ScreenRecorder;
+import net.yrom.screenrecorder.BuildConfig;
+import net.yrom.screenrecorder.R;
+import net.yrom.utils.Notifications;
+import net.yrom.utils.Utils;
+import net.yrom.widget.NamedSpinner;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -63,8 +70,8 @@ import java.util.Locale;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION_CODES.M;
-import static net.yrom.screenrecorder.ScreenRecorder.AUDIO_AAC;
-import static net.yrom.screenrecorder.ScreenRecorder.VIDEO_AVC;
+import static net.yrom.recoder.ScreenRecorder.AUDIO_AAC;
+import static net.yrom.recoder.ScreenRecorder.VIDEO_AVC;
 
 public class MainActivity extends Activity {
     private static final int REQUEST_MEDIA_PROJECTION = 1;
@@ -908,7 +915,7 @@ public class MainActivity extends Activity {
         }
     }
 
-    static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".action.STOP";
+    public static final String ACTION_STOP = BuildConfig.APPLICATION_ID + ".action.STOP";
 
     private BroadcastReceiver mStopActionReceiver = new BroadcastReceiver() {
         @Override

@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-package net.yrom.screenrecorder;
+package net.yrom.encoder.video;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
+
+import net.yrom.utils.Utils;
 
 import java.util.Objects;
 
@@ -26,8 +28,9 @@ import java.util.Objects;
  * @version 2017/12/3
  */
 public class VideoEncodeConfig {
-    final int width;
-    final int height;
+    private final static String TAG = "VideoEncodeConfig";
+    public final int width;
+    public final int height;
     final int bitrate;
     final int framerate;
     final int iframeInterval;
@@ -40,10 +43,7 @@ public class VideoEncodeConfig {
      * @param mimeType          video MIME type, cannot be null
      * @param codecProfileLevel profile level for video encoder nullable
      */
-    public VideoEncodeConfig(int width, int height, int bitrate,
-                             int framerate, int iframeInterval,
-                             String codecName, String mimeType,
-                             MediaCodecInfo.CodecProfileLevel codecProfileLevel) {
+    public VideoEncodeConfig(int width, int height, int bitrate, int framerate, int iframeInterval, String codecName, String mimeType, MediaCodecInfo.CodecProfileLevel codecProfileLevel) {
         this.width = width;
         this.height = height;
         this.bitrate = bitrate;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.yrom.screenrecorder;
+package net.yrom.recoder;
 
 import android.hardware.display.VirtualDisplay;
 import android.media.MediaCodec;
@@ -26,6 +26,13 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 import android.view.Surface;
+
+import net.yrom.encoder.BaseEncoder;
+import net.yrom.encoder.Encoder;
+import net.yrom.encoder.audio.AudioEncodeConfig;
+import net.yrom.encoder.audio.AudioEncoder;
+import net.yrom.encoder.video.VideoEncodeConfig;
+import net.yrom.encoder.video.VideoEncoder;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -42,8 +49,8 @@ public class ScreenRecorder {
     private static final String TAG = "ScreenRecorder";
     private static final boolean VERBOSE = false;
     private static final int INVALID_INDEX = -1;
-    static final String VIDEO_AVC = MIMETYPE_VIDEO_AVC; // H.264 Advanced Video Coding
-    static final String AUDIO_AAC = MIMETYPE_AUDIO_AAC; // H.264 Advanced Audio Coding
+    public static final String VIDEO_AVC = MIMETYPE_VIDEO_AVC; // H.264 Advanced Video Coding
+    public static final String AUDIO_AAC = MIMETYPE_AUDIO_AAC; // H.264 Advanced Audio Coding
     private String mDstPath;
     private VideoEncoder mVideoEncoder;
     private MicRecorder mAudioEncoder;
@@ -109,7 +116,7 @@ public class ScreenRecorder {
         return mDstPath;
     }
 
-    interface Callback {
+    public interface Callback {
         void onStop(Throwable error);
 
         void onStart();
@@ -213,7 +220,6 @@ public class ScreenRecorder {
             signalStop(true);
         }
     }
-
 
     private void muxAudio(int index, MediaCodec.BufferInfo buffer) {
         if (!mIsRunning.get()) {
@@ -437,7 +443,6 @@ public class ScreenRecorder {
         } catch (IllegalStateException e) {
             // ignored
         }
-
     }
 
     private void release() {
@@ -482,5 +487,4 @@ public class ScreenRecorder {
             release();
         }
     }
-
 }
