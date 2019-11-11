@@ -26,17 +26,17 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Utils {
-    private final static String TAG = "Utils";
+public class MediaUtils {
+    private final static String TAG = "MediaUtils";
 
-    public interface Callback {
+    public interface MediaCodecInfoCallback {
         void onResult(MediaCodecInfo[] infos);
     }
 
     static final class EncoderFinder extends AsyncTask<String, Void, MediaCodecInfo[]> {
-        private Callback func;
+        private MediaCodecInfoCallback func;
 
-        EncoderFinder(Callback func) {
+        EncoderFinder(MediaCodecInfoCallback func) {
             this.func = func;
         }
 
@@ -51,7 +51,7 @@ public class Utils {
         }
     }
 
-    public static void findEncodersByTypeAsync(String mimeType, Callback callback) {
+    public static void findEncodersByTypeAsync(String mimeType, MediaCodecInfoCallback callback) {
         new EncoderFinder(callback).execute(mimeType);
     }
 

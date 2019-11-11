@@ -53,10 +53,10 @@ import android.widget.ToggleButton;
 import net.yrom.encoder.audio.AudioEncodeConfig;
 import net.yrom.encoder.video.VideoEncodeConfig;
 import net.yrom.recoder.ScreenRecorder;
-import net.yrom.screenrecorder.BuildConfig;
 import net.yrom.screenrecorder.R;
+import net.yrom.utils.MediaUtils;
 import net.yrom.utils.Notifications;
-import net.yrom.utils.Utils;
+import net.yrom.widget.BuildConfig;
 import net.yrom.widget.NamedSpinner;
 
 import java.io.File;
@@ -113,7 +113,7 @@ public class MainActivity extends Activity {
         mNotifications = new Notifications(getApplicationContext());
         bindViews();
 
-        Utils.findEncodersByTypeAsync(VIDEO_AVC, infos -> {
+        MediaUtils.findEncodersByTypeAsync(VIDEO_AVC, infos -> {
             logCodecInfos(infos, VIDEO_AVC);
             mAvcCodecInfos = infos;
             SpinnerAdapter codecsAdapter = createCodecsAdapter(mAvcCodecInfos);
@@ -121,7 +121,7 @@ public class MainActivity extends Activity {
             restoreSelections(mVideoCodec, mVieoResolution, mVideoFramerate, mIFrameInterval, mVideoBitrate);
 
         });
-        Utils.findEncodersByTypeAsync(AUDIO_AAC, infos -> {
+        MediaUtils.findEncodersByTypeAsync(AUDIO_AAC, infos -> {
             logCodecInfos(infos, AUDIO_AAC);
             mAacCodecInfos = infos;
             SpinnerAdapter codecsAdapter = createCodecsAdapter(mAacCodecInfos);
@@ -566,7 +566,7 @@ public class MainActivity extends Activity {
         String[] profileLevels = new String[profiles.length + 1];
         profileLevels[0] = "Default";
         for (int i = 0; i < profiles.length; i++) {
-            profileLevels[i + 1] = Utils.avcProfileLevelToString(profiles[i]);
+            profileLevels[i + 1] = MediaUtils.avcProfileLevelToString(profiles[i]);
         }
 
         SpinnerAdapter old = mVideoProfileLevel.getAdapter();
@@ -601,7 +601,7 @@ public class MainActivity extends Activity {
     }
 
     private void resetAacProfileAdapter(MediaCodecInfo.CodecCapabilities capabilities) {
-        String[] profiles = Utils.aacProfiles();
+        String[] profiles = MediaUtils.aacProfiles();
         SpinnerAdapter old = mAudioProfile.getAdapter();
         if (old == null || !(old instanceof ArrayAdapter)) {
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, new ArrayList<>());
@@ -675,7 +675,7 @@ public class MainActivity extends Activity {
     private MediaCodecInfo getVideoCodecInfo(String codecName) {
         if (codecName == null) return null;
         if (mAvcCodecInfos == null) {
-            mAvcCodecInfos = Utils.findEncodersByType(VIDEO_AVC);
+            mAvcCodecInfos = MediaUtils.findEncodersByType(VIDEO_AVC);
         }
         MediaCodecInfo codec = null;
         for (int i = 0; i < mAvcCodecInfos.length; i++) {
@@ -692,7 +692,7 @@ public class MainActivity extends Activity {
     private MediaCodecInfo getAudioCodecInfo(String codecName) {
         if (codecName == null) return null;
         if (mAacCodecInfos == null) {
-            mAacCodecInfos = Utils.findEncodersByType(AUDIO_AAC);
+            mAacCodecInfos = MediaUtils.findEncodersByType(AUDIO_AAC);
         }
         MediaCodecInfo codec = null;
         for (int i = 0; i < mAacCodecInfos.length; i++) {
@@ -736,7 +736,7 @@ public class MainActivity extends Activity {
     }
 
     private MediaCodecInfo.CodecProfileLevel getSelectedProfileLevel() {
-        return mVideoProfileLevel != null ? Utils.toProfileLevel(mVideoProfileLevel.getSelectedItem()) : null;
+        return mVideoProfileLevel != null ? MediaUtils.toProfileLevel(mVideoProfileLevel.getSelectedItem()) : null;
     }
 
     private int[] getSelectedWithHeight() {
@@ -767,7 +767,7 @@ public class MainActivity extends Activity {
     private int getSelectedAudioProfile() {
         if (mAudioProfile == null) throw new IllegalStateException();
         String selectedItem = mAudioProfile.getSelectedItem();
-        MediaCodecInfo.CodecProfileLevel profileLevel = Utils.toProfileLevel(selectedItem);
+        MediaCodecInfo.CodecProfileLevel profileLevel = MediaUtils.toProfileLevel(selectedItem);
         return profileLevel == null ? MediaCodecInfo.CodecProfileLevel.AACObjectMain : profileLevel.profile;
     }
 
@@ -822,12 +822,12 @@ public class MainActivity extends Activity {
 
                     builder.append("\n  Profile-levels: ");
                     for (MediaCodecInfo.CodecProfileLevel level : levels) {
-                        builder.append("\n  ").append(Utils.avcProfileLevelToString(level));
+                        builder.append("\n  ").append(MediaUtils.avcProfileLevelToString(level));
                     }
                 }
                 builder.append("\n  Color-formats: ");
                 for (int c : caps.colorFormats) {
-                    builder.append("\n  ").append(Utils.toHumanReadable(c));
+                    builder.append("\n  ").append(MediaUtils.toHumanReadable(c));
                 }
             }
             MediaCodecInfo.AudioCapabilities audioCaps = caps.getAudioCapabilities();
