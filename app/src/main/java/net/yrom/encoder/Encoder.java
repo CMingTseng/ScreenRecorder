@@ -29,9 +29,9 @@ public interface Encoder {
 
     void release();
 
-    void setCallback(Callback callback);
+    void setCallback(EncoderCallback callback);
 
-    interface Callback {
+    interface EncoderCallback {
         void onError(Encoder encoder, Exception exception);
     }
 }

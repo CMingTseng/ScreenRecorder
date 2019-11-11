@@ -32,7 +32,7 @@ import java.util.Objects;
 public abstract class BaseEncoder implements Encoder {
     private final static String TAG = "BaseEncoder";
 
-    public static abstract class Callback implements Encoder.Callback {
+    public static abstract class BaseEncoderCallback implements EncoderCallback {
         void onInputBufferAvailable(BaseEncoder encoder, int index) {
         }
 
@@ -51,14 +51,14 @@ public abstract class BaseEncoder implements Encoder {
     }
 
     @Override
-    public void setCallback(Encoder.Callback callback) {
-        if (!(callback instanceof Callback)) {
+    public void setCallback(EncoderCallback callback) {
+        if (!(callback instanceof BaseEncoderCallback)) {
             throw new IllegalArgumentException();
         }
-        this.setCallback((Callback) callback);
+        this.setCallback((BaseEncoderCallback) callback);
     }
 
-    void setCallback(Callback callback) {
+    void setCallback(BaseEncoderCallback callback) {
         if (this.mEncoder != null) throw new IllegalStateException("mEncoder is not null");
         this.mCallback = callback;
     }
@@ -76,7 +76,7 @@ public abstract class BaseEncoder implements Encoder {
             throw new IllegalStateException("prepared!");
         }
         MediaFormat format = createMediaFormat();
-        Log.d("Encoder", "Create media format: " + format);
+        Log.d(TAG, "Create media format: " + format);
 
         String mimeType = format.getString(MediaFormat.KEY_MIME);
         final MediaCodec encoder = createEncoder(mimeType);
@@ -89,7 +89,7 @@ public abstract class BaseEncoder implements Encoder {
             onEncoderConfigured(encoder);
             encoder.start();
         } catch (MediaCodec.CodecException e) {
-            Log.e("Encoder", "Configure codec failure!\n  with format" + format, e);
+            Log.e(TAG, "Configure codec failure!\n  with format" + format, e);
             throw e;
         }
         mEncoder = encoder;
@@ -112,7 +112,7 @@ public abstract class BaseEncoder implements Encoder {
                 return MediaCodec.createByCodecName(mCodecName);
             }
         } catch (IOException e) {
-            Log.w("@@", "Create MediaCodec by name '" + mCodecName + "' failure!", e);
+            Log.w(TAG, "Create MediaCodec by name '" + mCodecName + "' failure!", e);
         }
         return MediaCodec.createEncoderByType(type);
     }
@@ -182,7 +182,7 @@ public abstract class BaseEncoder implements Encoder {
 
     private String mCodecName;
     private MediaCodec mEncoder;
-    private Callback mCallback;
+    private BaseEncoderCallback mCallback;
     /**
      * let media codec run async mode if mCallback != null
      */
@@ -207,6 +207,4 @@ public abstract class BaseEncoder implements Encoder {
             mCallback.onOutputFormatChanged(BaseEncoder.this, format);
         }
     };
-
-
 }

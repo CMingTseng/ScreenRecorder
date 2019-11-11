@@ -30,7 +30,6 @@ import android.view.Surface;
 import net.yrom.encoder.BaseEncoder;
 import net.yrom.encoder.Encoder;
 import net.yrom.encoder.audio.AudioEncodeConfig;
-import net.yrom.encoder.audio.AudioEncoder;
 import net.yrom.encoder.video.VideoEncodeConfig;
 import net.yrom.encoder.video.VideoEncoder;
 
@@ -351,7 +350,7 @@ public class ScreenRecorder {
 
     // @WorkerThread
     private void prepareVideoEncoder() throws IOException {
-        VideoEncoder.Callback callback = new VideoEncoder.Callback() {
+        BaseEncoder.BaseEncoderCallback callback = new BaseEncoder.BaseEncoderCallback() {
             boolean ranIntoError = false;
 
             @Override
@@ -385,7 +384,7 @@ public class ScreenRecorder {
     private void prepareAudioEncoder() throws IOException {
         final MicRecorder micRecorder = mAudioEncoder;
         if (micRecorder == null) return;
-        AudioEncoder.Callback callback = new AudioEncoder.Callback() {
+        BaseEncoder.BaseEncoderCallback callback = new BaseEncoder.BaseEncoderCallback() {
             boolean ranIntoError = false;
 
             @Override

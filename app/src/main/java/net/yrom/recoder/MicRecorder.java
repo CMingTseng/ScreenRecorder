@@ -64,7 +64,7 @@ class MicRecorder implements Encoder {
     private int mFormat = AudioFormat.ENCODING_PCM_16BIT;
 
     private AtomicBoolean mForceStop = new AtomicBoolean(false);
-    private BaseEncoder.Callback mCallback;
+    private BaseEncoder.BaseEncoderCallback mCallback;
     private CallbackDelegate mCallbackDelegate;
     private int mChannelsSampleRate;
 
@@ -78,11 +78,11 @@ class MicRecorder implements Encoder {
     }
 
     @Override
-    public void setCallback(Callback callback) {
-        this.mCallback = (BaseEncoder.Callback) callback;
+    public void setCallback(EncoderCallback callback) {
+        this.mCallback = (BaseEncoder.BaseEncoderCallback) callback;
     }
 
-    public void setCallback(BaseEncoder.Callback callback) {
+    public void setCallback(BaseEncoder.BaseEncoderCallback callback) {
         this.mCallback = callback;
     }
 
@@ -122,9 +122,9 @@ class MicRecorder implements Encoder {
     }
 
     private static class CallbackDelegate extends Handler {
-        private BaseEncoder.Callback mCallback;
+        private BaseEncoder.BaseEncoderCallback mCallback;
 
-        CallbackDelegate(Looper l, BaseEncoder.Callback callback) {
+        CallbackDelegate(Looper l, BaseEncoder.BaseEncoderCallback callback) {
             super(l);
             this.mCallback = callback;
         }

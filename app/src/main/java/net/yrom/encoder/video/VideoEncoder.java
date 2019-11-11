@@ -43,7 +43,7 @@ public class VideoEncoder extends BaseEncoder {
     @Override
     protected void onEncoderConfigured(MediaCodec encoder) {
         mSurface = encoder.createInputSurface();
-        if (VERBOSE) Log.i("@@", "VideoEncoder create input surface: " + mSurface);
+        if (VERBOSE) Log.i(TAG, "VideoEncoder create input surface: " + mSurface);
     }
 
     @Override
