@@ -18,7 +18,6 @@ package net.yrom.utils;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
-import android.os.AsyncTask;
 import android.util.SparseArray;
 
 import java.lang.reflect.Field;
@@ -27,31 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MediaUtils {
-    private final static String TAG = "MediaUtils";
 
-    public interface MediaCodecInfoCallback {
-        void onResult(MediaCodecInfo[] infos);
-    }
-
-    static final class EncoderFinder extends AsyncTask<String, Void, MediaCodecInfo[]> {
-        private MediaCodecInfoCallback func;
-
-        EncoderFinder(MediaCodecInfoCallback func) {
-            this.func = func;
-        }
-
-        @Override
-        protected MediaCodecInfo[] doInBackground(String... mimeTypes) {
-            return findEncodersByType(mimeTypes[0]);
-        }
-
-        @Override
-        protected void onPostExecute(MediaCodecInfo[] mediaCodecInfos) {
-            func.onResult(mediaCodecInfos);
-        }
-    }
-
-    public static void findEncodersByTypeAsync(String mimeType, MediaCodecInfoCallback callback) {
+    public static void findEncodersByTypeAsync(String mimeType, EncoderFinder.EncoderFinderCallback callback) {
         new EncoderFinder(callback).execute(mimeType);
     }
 
@@ -76,9 +52,9 @@ public class MediaUtils {
             }
             infos.add(info);
         }
+
         return infos.toArray(new MediaCodecInfo[infos.size()]);
     }
-
 
     static SparseArray<String> sAACProfiles = new SparseArray<>();
     static SparseArray<String> sAVCProfiles = new SparseArray<>();
@@ -159,6 +135,7 @@ public class MediaUtils {
                 }
             }
         }
+
         return res.profile > 0 && res.level >= 0 ? res : null;
     }
 
@@ -197,7 +174,6 @@ public class MediaUtils {
             }
         }
     }
-
 
     static SparseArray<String> sColorFormats = new SparseArray<>();
 

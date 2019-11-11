@@ -19,7 +19,7 @@ package net.yrom.encoder.video;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 
-import net.yrom.utils.Utils;
+import net.yrom.utils.MediaUtils;
 
 import java.util.Objects;
 
@@ -79,7 +79,7 @@ public class VideoEncodeConfig {
                 ", iframeInterval=" + iframeInterval +
                 ", codecName='" + codecName + '\'' +
                 ", mimeType='" + mimeType + '\'' +
-                ", codecProfileLevel=" + (codecProfileLevel == null ? "" : Utils.avcProfileLevelToString(codecProfileLevel)) +
+                ", codecProfileLevel=" + (codecProfileLevel == null ? "" : MediaUtils.avcProfileLevelToString(codecProfileLevel)) +
                 '}';
     }
 }
