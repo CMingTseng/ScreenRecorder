@@ -28,13 +28,12 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
-import net.yrom.screenrecorder.R;
-
 /**
  * @author yrom
  * @version 2017/12/2
  */
 public class NamedSpinner extends LinearLayout {
+    private final static String TAG = "NamedSpinner";
     private TextView mTitleView;
     private Spinner mSpinner;
     private OnItemSelectedListener mListener;
@@ -125,7 +124,6 @@ public class NamedSpinner extends LinearLayout {
             mListener.onItemSelected(this, position);
         }
     }
-
 
     public interface OnItemSelectedListener {
         void onItemSelected(NamedSpinner view, int position);
