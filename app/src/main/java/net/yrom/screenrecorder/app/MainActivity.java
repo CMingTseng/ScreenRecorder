@@ -71,7 +71,6 @@ import java.util.Locale;
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION_CODES.M;
-import static net.yrom.recoder.ScreenRecorder.AUDIO_AAC;
 
 public class MainActivity extends Activity {
     private final static String TAG = "MainActivity";
@@ -80,6 +79,14 @@ public class MainActivity extends Activity {
             MediaFormat.MIMETYPE_VIDEO_H263, MediaFormat.MIMETYPE_VIDEO_MPEG2, MediaFormat.MIMETYPE_VIDEO_RAW,
             MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION, MediaFormat.MIMETYPE_VIDEO_SCRAMBLED};
     private NamedSpinner mVideoCodecType;
+    private NamedSpinner mVideoCodec;
+
+    private final String[] mAudiotypes = {MediaFormat.MIMETYPE_AUDIO_AAC, MediaFormat.MIMETYPE_AUDIO_AMR_NB, MediaFormat.MIMETYPE_AUDIO_AMR_WB,
+            MediaFormat.MIMETYPE_AUDIO_MPEG, MediaFormat.MIMETYPE_AUDIO_QCELP, MediaFormat.MIMETYPE_AUDIO_VORBIS,
+            MediaFormat.MIMETYPE_AUDIO_OPUS, MediaFormat.MIMETYPE_AUDIO_G711_ALAW, MediaFormat.MIMETYPE_AUDIO_G711_MLAW,
+            MediaFormat.MIMETYPE_AUDIO_RAW, MediaFormat.MIMETYPE_AUDIO_FLAC, MediaFormat.MIMETYPE_AUDIO_MSGSM,
+            MediaFormat.MIMETYPE_AUDIO_AC3, MediaFormat.MIMETYPE_AUDIO_EAC3, MediaFormat.MIMETYPE_AUDIO_EAC3_JOC,
+            MediaFormat.MIMETYPE_AUDIO_AC4, MediaFormat.MIMETYPE_AUDIO_SCRAMBLED};
 
     private static final int REQUEST_MEDIA_PROJECTION = 1;
     private static final int REQUEST_PERMISSIONS = 2;
@@ -94,7 +101,8 @@ public class MainActivity extends Activity {
     private NamedSpinner mAudioBitrate;
     private NamedSpinner mAudioSampleRate;
     private NamedSpinner mAudioChannelCount;
-    private NamedSpinner mVideoCodec;
+
+    private NamedSpinner mAudioCodecType;
     private NamedSpinner mAudioCodec;
     private NamedSpinner mVideoProfileLevel;
     private NamedSpinner mAudioProfile;
@@ -130,19 +138,14 @@ public class MainActivity extends Activity {
         mNotifications = new Notifications(getApplicationContext());
 
         mVideoCodecType = findViewById(R.id.video_codec_type);
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+        final ArrayAdapter<String> videotypesadapter = new ArrayAdapter<String>(
                 this, android.R.layout.simple_spinner_item, mVideotypes);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-
+        videotypesadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mVideoCodec = findViewById(R.id.video_codec);
 
         mVideoCodecType.setOnItemSelectedListener(new NamedSpinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(NamedSpinner view, int position) {
-                Log.e(TAG, "Show  select : " + view.getSelectedItem());
-//                Log.e(TAG,"Show check  : "+VIDEO_MIME_VIDEO_AVC.equals(view.getSelectedItem()));
-                Log.e(TAG, "Show check  : " + mVideoCodecType.getSelectedItem());
                 MediaUtils.findEncodersByTypeAsync(view.getSelectedItem(), infos -> {
                     logCodecInfos(infos, view.getSelectedItem());
                     mAvcCodecInfos = infos;
@@ -152,23 +155,37 @@ public class MainActivity extends Activity {
                 });
             }
         });
-        mVideoCodecType.setAdapter(adapter);
+        mVideoCodecType.setAdapter(videotypesadapter);
         mVideoCodec.setOnItemSelectedListener((view, position) -> onVideoCodecSelected(view.getSelectedItem()));
-//        MediaUtils.findEncodersByTypeAsync(VIDEO_MIME_VIDEO_AVC, infos -> {
-//            logCodecInfos(infos, VIDEO_MIME_VIDEO_AVC);
-//            mAvcCodecInfos = infos;
-//            SpinnerAdapter codecsAdapter = createCodecsAdapter(mAvcCodecInfos);
-//            mVideoCodec.setAdapter(codecsAdapter);
-//            restoreSelections(mVideoCodec, mVieoResolution, mVideoFramerate, mIFrameInterval, mVideoBitrate);
-//        });
-
         mVieoResolution = findViewById(R.id.resolution);
         mVideoFramerate = findViewById(R.id.framerate);
         mIFrameInterval = findViewById(R.id.iframe_interval);
         mVideoBitrate = findViewById(R.id.video_bitrate);
         mOrientation = findViewById(R.id.orientation);
 
+        mAudioCodecType = findViewById(R.id.audio_codec_type);
+        final ArrayAdapter<String> audiotypesadapter = new ArrayAdapter<String>(
+                this, android.R.layout.simple_spinner_item, mAudiotypes);
+        audiotypesadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
         mAudioCodec = findViewById(R.id.audio_codec);
+
+        mAudioCodecType.setOnItemSelectedListener(new NamedSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(NamedSpinner view, int position) {
+                MediaUtils.findEncodersByTypeAsync(view.getSelectedItem(), infos -> {
+                    logCodecInfos(infos, view.getSelectedItem());
+                    mAacCodecInfos = infos;
+                    SpinnerAdapter codecsAdapter = createCodecsAdapter(mAacCodecInfos);
+                    mAudioCodec.setAdapter(codecsAdapter);
+                    restoreSelections(mAudioCodec, mAudioChannelCount);
+                });
+            }
+        });
+
+        mAudioCodec.setOnItemSelectedListener((view, position) -> onAudioCodecSelected(view.getSelectedItem()));
+        mAudioCodecType.setAdapter(audiotypesadapter);
+
         mVideoProfileLevel = findViewById(R.id.avc_profile);
         mAudioBitrate = findViewById(R.id.audio_bitrate);
         mAudioSampleRate = findViewById(R.id.sample_rate);
@@ -185,7 +202,7 @@ public class MainActivity extends Activity {
             mOrientation.setSelectedPosition(1);
         }
 
-        mAudioCodec.setOnItemSelectedListener((view, position) -> onAudioCodecSelected(view.getSelectedItem()));
+
         mVieoResolution.setOnItemSelectedListener((view, position) -> {
             onResolutionChanged(position, view.getSelectedItem());
         });
@@ -199,13 +216,7 @@ public class MainActivity extends Activity {
             onOrientationChanged(position, view.getSelectedItem());
         });
 
-        MediaUtils.findEncodersByTypeAsync(AUDIO_AAC, infos -> {
-            logCodecInfos(infos, AUDIO_AAC);
-            mAacCodecInfos = infos;
-            SpinnerAdapter codecsAdapter = createCodecsAdapter(mAacCodecInfos);
-            mAudioCodec.setAdapter(codecsAdapter);
-            restoreSelections(mAudioCodec, mAudioChannelCount);
-        });
+
         mAudioToggle.setChecked(
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
                         .getBoolean(getResources().getResourceEntryName(mAudioToggle.getId()), true));
@@ -315,7 +326,7 @@ public class MainActivity extends Activity {
         int channelCount = getSelectedAudioChannelCount();
         int profile = getSelectedAudioProfile();
 
-        return new AudioEncodeConfig(codec, AUDIO_AAC, bitrate, samplerate, channelCount, profile);
+        return new AudioEncodeConfig(mAudioCodecType.getSelectedItem(), codec, bitrate, samplerate, channelCount, profile);
     }
 
     private VideoEncodeConfig createVideoConfig() {
@@ -540,7 +551,7 @@ public class MainActivity extends Activity {
             mAudioBitrate.setAdapter(null);
             return;
         }
-        MediaCodecInfo.CodecCapabilities capabilities = codec.getCapabilitiesForType(AUDIO_AAC);
+        MediaCodecInfo.CodecCapabilities capabilities = codec.getCapabilitiesForType(mAudioCodecType.getSelectedItem());
 
         resetAudioBitrateAdapter(capabilities);
         resetSampleRateAdapter(capabilities);
@@ -639,7 +650,7 @@ public class MainActivity extends Activity {
     private MediaCodecInfo getAudioCodecInfo(String codecName) {
         if (codecName == null) return null;
         if (mAacCodecInfos == null) {
-            mAacCodecInfos = MediaUtils.findEncodersByType(AUDIO_AAC);
+            mAacCodecInfos = MediaUtils.findEncodersByType(mAudioCodecType.getSelectedItem());
         }
         MediaCodecInfo codec = null;
         for (int i = 0; i < mAacCodecInfos.length; i++) {

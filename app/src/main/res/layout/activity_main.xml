@@ -87,11 +87,12 @@
                 android:layout_marginTop="16dp"
                 android:orientation="vertical">
 
-                <TextView
-                    style="?android:attr/titleTextStyle"
+                <net.yrom.widget.NamedSpinner
+                    android:id="@+id/audio_codec_type"
+                    android:name="@string/audio_encode_config_h_264_aac"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/audio_encode_config_h_264_aac" />
+                    android:layout_marginTop="8dp" />
 
                 <net.yrom.widget.NamedSpinner
                     android:id="@+id/audio_codec"
