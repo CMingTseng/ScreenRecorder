@@ -38,17 +38,12 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static android.media.MediaFormat.MIMETYPE_AUDIO_AAC;
-import static android.media.MediaFormat.MIMETYPE_VIDEO_AVC;
-
 /**
  * @author Yrom
  */
 public class ScreenRecorder {
     private static final String TAG = "ScreenRecorder";
     private static final int INVALID_INDEX = -1;
-    public static final String VIDEO_AVC = MIMETYPE_VIDEO_AVC; // H.264 Advanced Video Coding
-    public static final String AUDIO_AAC = MIMETYPE_AUDIO_AAC; // H.264 Advanced Audio Coding
     private String mDstPath;
     private VideoEncoder mVideoEncoder;
     private MicRecorder mAudioEncoder;
