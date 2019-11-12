@@ -24,9 +24,8 @@ import java.util.Objects;
  * @author yrom
  * @version 2017/12/3
  */
-public class AudioEncodeConfig {
+public class AudioEncodeConfig extends EncodeConfig {
     private final static String TAG = "AudioEncodeConfig";
-    public final String codecName;
     final String mimeType;
     final int bitRate;
     public final int sampleRate;
@@ -34,7 +33,7 @@ public class AudioEncodeConfig {
     final int profile;
 
     public AudioEncodeConfig(String codecName, String mimeType, int bitRate, int sampleRate, int channelCount, int profile) {
-        this.codecName = codecName;
+        super(codecName);
         this.mimeType = Objects.requireNonNull(mimeType);
         this.bitRate = bitRate;
         this.sampleRate = sampleRate;
@@ -53,7 +52,7 @@ public class AudioEncodeConfig {
     @Override
     public String toString() {
         return "AudioEncodeConfig{" +
-                "codecName='" + codecName + '\'' +
+                "codecName='" + mCodecName + '\'' +
                 ", mimeType='" + mimeType + '\'' +
                 ", bitRate=" + bitRate +
                 ", sampleRate=" + sampleRate +

@@ -30,7 +30,7 @@ public class AudioEncoder extends BaseEncoder {
     private final AudioEncodeConfig mConfig;
 
     public AudioEncoder(AudioEncodeConfig config) {
-        super(config.codecName);
+        super(config.mCodecName);
         this.mConfig = config;
     }
 
