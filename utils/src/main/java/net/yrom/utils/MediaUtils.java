@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MediaUtils {
-
+    private final static String TAG = "MediaUtils";
     public static void findEncodersByTypeAsync(String mimeType, EncoderFinder.EncoderFinderCallback callback) {
         new EncoderFinder(callback).execute(mimeType);
     }
