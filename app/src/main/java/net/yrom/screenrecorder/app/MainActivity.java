@@ -31,6 +31,7 @@ import android.graphics.Point;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.media.MediaCodecInfo;
+import android.media.MediaFormat;
 import android.media.projection.MediaProjection;
 import android.media.projection.MediaProjectionManager;
 import android.net.Uri;
@@ -71,9 +72,15 @@ import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION_CODES.M;
 import static net.yrom.recoder.ScreenRecorder.AUDIO_AAC;
-import static net.yrom.recoder.ScreenRecorder.VIDEO_AVC;
 
 public class MainActivity extends Activity {
+    private final static String TAG = "MainActivity";
+    private final String[] mVideotypes = {MediaFormat.MIMETYPE_VIDEO_AVC, MediaFormat.MIMETYPE_VIDEO_HEVC, MediaFormat.MIMETYPE_VIDEO_AV1,
+            MediaFormat.MIMETYPE_VIDEO_VP8, MediaFormat.MIMETYPE_VIDEO_VP9, MediaFormat.MIMETYPE_VIDEO_MPEG4,
+            MediaFormat.MIMETYPE_VIDEO_H263, MediaFormat.MIMETYPE_VIDEO_MPEG2, MediaFormat.MIMETYPE_VIDEO_RAW,
+            MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION, MediaFormat.MIMETYPE_VIDEO_SCRAMBLED};
+    private NamedSpinner mVideoCodecType;
+
     private static final int REQUEST_MEDIA_PROJECTION = 1;
     private static final int REQUEST_PERMISSIONS = 2;
     // members below will be initialized in onCreate()
@@ -122,15 +129,38 @@ public class MainActivity extends Activity {
         mMediaProjectionManager = (MediaProjectionManager) getApplicationContext().getSystemService(MEDIA_PROJECTION_SERVICE);
         mNotifications = new Notifications(getApplicationContext());
 
+        mVideoCodecType = findViewById(R.id.video_codec_type);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(
+                this, android.R.layout.simple_spinner_item, mVideotypes);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+
         mVideoCodec = findViewById(R.id.video_codec);
-        mVideoCodec.setOnItemSelectedListener((view, position) -> onVideoCodecSelected(view.getSelectedItem()));
-        MediaUtils.findEncodersByTypeAsync(VIDEO_AVC, infos -> {
-            logCodecInfos(infos, VIDEO_AVC);
-            mAvcCodecInfos = infos;
-            SpinnerAdapter codecsAdapter = createCodecsAdapter(mAvcCodecInfos);
-            mVideoCodec.setAdapter(codecsAdapter);
-            restoreSelections(mVideoCodec, mVieoResolution, mVideoFramerate, mIFrameInterval, mVideoBitrate);
+
+        mVideoCodecType.setOnItemSelectedListener(new NamedSpinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(NamedSpinner view, int position) {
+                Log.e(TAG, "Show  select : " + view.getSelectedItem());
+//                Log.e(TAG,"Show check  : "+VIDEO_MIME_VIDEO_AVC.equals(view.getSelectedItem()));
+                Log.e(TAG, "Show check  : " + mVideoCodecType.getSelectedItem());
+                MediaUtils.findEncodersByTypeAsync(view.getSelectedItem(), infos -> {
+                    logCodecInfos(infos, view.getSelectedItem());
+                    mAvcCodecInfos = infos;
+                    SpinnerAdapter codecsAdapter = createCodecsAdapter(mAvcCodecInfos);
+                    mVideoCodec.setAdapter(codecsAdapter);
+                    restoreSelections(mVideoCodec, mVieoResolution, mVideoFramerate, mIFrameInterval, mVideoBitrate);
+                });
+            }
         });
+        mVideoCodecType.setAdapter(adapter);
+        mVideoCodec.setOnItemSelectedListener((view, position) -> onVideoCodecSelected(view.getSelectedItem()));
+//        MediaUtils.findEncodersByTypeAsync(VIDEO_MIME_VIDEO_AVC, infos -> {
+//            logCodecInfos(infos, VIDEO_MIME_VIDEO_AVC);
+//            mAvcCodecInfos = infos;
+//            SpinnerAdapter codecsAdapter = createCodecsAdapter(mAvcCodecInfos);
+//            mVideoCodec.setAdapter(codecsAdapter);
+//            restoreSelections(mVideoCodec, mVieoResolution, mVideoFramerate, mIFrameInterval, mVideoBitrate);
+//        });
 
         mVieoResolution = findViewById(R.id.resolution);
         mVideoFramerate = findViewById(R.id.framerate);
@@ -303,7 +333,7 @@ public class MainActivity extends Activity {
         int iframe = getSelectedIFrameInterval();
         int bitrate = getSelectedVideoBitrate();
         MediaCodecInfo.CodecProfileLevel profileLevel = getSelectedProfileLevel();
-        return new VideoEncodeConfig(codec, VIDEO_AVC, width, height, bitrate, framerate, iframe, profileLevel);
+        return new VideoEncodeConfig(mVideoCodecType.getSelectedItem(), codec, width, height, bitrate, framerate, iframe, profileLevel);
     }
 
     private static File getSavingDir() {
@@ -373,7 +403,7 @@ public class MainActivity extends Activity {
         String codecName = getSelectedVideoCodec();
         MediaCodecInfo codec = getVideoCodecInfo(codecName);
         if (codec == null) return;
-        MediaCodecInfo.CodecCapabilities capabilities = codec.getCapabilitiesForType(VIDEO_AVC);
+        MediaCodecInfo.CodecCapabilities capabilities = codec.getCapabilitiesForType(mVideoCodecType.getSelectedItem());
         MediaCodecInfo.VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
         String[] xes = resolution.split("x");
         if (xes.length != 2) throw new IllegalArgumentException();
@@ -401,7 +431,7 @@ public class MainActivity extends Activity {
         String codecName = getSelectedVideoCodec();
         MediaCodecInfo codec = getVideoCodecInfo(codecName);
         if (codec == null) return;
-        MediaCodecInfo.CodecCapabilities capabilities = codec.getCapabilitiesForType(VIDEO_AVC);
+        MediaCodecInfo.CodecCapabilities capabilities = codec.getCapabilitiesForType(mVideoCodecType.getSelectedItem());
         MediaCodecInfo.VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
         int selectedBitrate = Integer.parseInt(bitrate) * 1000;
 
@@ -418,7 +448,7 @@ public class MainActivity extends Activity {
         String codecName = getSelectedVideoCodec();
         MediaCodecInfo codec = getVideoCodecInfo(codecName);
         if (codec == null) return;
-        MediaCodecInfo.CodecCapabilities capabilities = codec.getCapabilitiesForType(VIDEO_AVC);
+        MediaCodecInfo.CodecCapabilities capabilities = codec.getCapabilitiesForType(mVideoCodecType.getSelectedItem());
         MediaCodecInfo.VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
         int[] selectedWithHeight = getSelectedWithHeight();
         boolean isLandscape = selectedPosition == 1;
@@ -444,7 +474,7 @@ public class MainActivity extends Activity {
         String codecName = getSelectedVideoCodec();
         MediaCodecInfo codec = getVideoCodecInfo(codecName);
         if (codec == null) return;
-        MediaCodecInfo.CodecCapabilities capabilities = codec.getCapabilitiesForType(VIDEO_AVC);
+        MediaCodecInfo.CodecCapabilities capabilities = codec.getCapabilitiesForType(mVideoCodecType.getSelectedItem());
         MediaCodecInfo.VideoCapabilities videoCapabilities = capabilities.getVideoCapabilities();
         int[] selectedWithHeight = getSelectedWithHeight();
         int selectedFramerate = Integer.parseInt(rate);
@@ -469,7 +499,7 @@ public class MainActivity extends Activity {
             mVideoProfileLevel.setAdapter(null);
             return;
         }
-        MediaCodecInfo.CodecCapabilities capabilities = codec.getCapabilitiesForType(VIDEO_AVC);
+        MediaCodecInfo.CodecCapabilities capabilities = codec.getCapabilitiesForType(mVideoCodecType.getSelectedItem());
 
         resetAvcProfileLevelAdapter(capabilities);
     }
@@ -592,7 +622,7 @@ public class MainActivity extends Activity {
     private MediaCodecInfo getVideoCodecInfo(String codecName) {
         if (codecName == null) return null;
         if (mAvcCodecInfos == null) {
-            mAvcCodecInfos = MediaUtils.findEncodersByType(VIDEO_AVC);
+            mAvcCodecInfos = MediaUtils.findEncodersByType(mVideoCodecType.getSelectedItem());
         }
         MediaCodecInfo codec = null;
         for (int i = 0; i < mAvcCodecInfos.length; i++) {
@@ -719,7 +749,7 @@ public class MainActivity extends Activity {
     /**
      * Print information of all MediaCodec on this device.
      */
-    private static void logCodecInfos(MediaCodecInfo[] codecInfos, String mimeType) {
+    private void logCodecInfos(MediaCodecInfo[] codecInfos, String mimeType) {
         for (MediaCodecInfo info : codecInfos) {
             StringBuilder builder = new StringBuilder(512);
             MediaCodecInfo.CodecCapabilities caps = info.getCapabilitiesForType(mimeType);
@@ -733,7 +763,7 @@ public class MainActivity extends Activity {
                         .append("\n  Heights: ").append(videoCaps.getSupportedHeights())
                         .append("\n  Frame Rates: ").append(videoCaps.getSupportedFrameRates())
                         .append("\n  Bitrate: ").append(videoCaps.getBitrateRange());
-                if (VIDEO_AVC.equals(mimeType)) {
+                if (mVideoCodecType.getSelectedItem().equals(mimeType)) {
                     MediaCodecInfo.CodecProfileLevel[] levels = caps.profileLevels;
 
                     builder.append("\n  Profile-levels: ");
@@ -753,7 +783,7 @@ public class MainActivity extends Activity {
                         .append("\n Bit Rates: ").append(audioCaps.getBitrateRange())
                         .append("\n Max channels: ").append(audioCaps.getMaxInputChannelCount());
             }
-            Log.i("@@@", builder.toString());
+            Log.i(TAG, builder.toString());
         }
     }
 
@@ -822,7 +852,7 @@ public class MainActivity extends Activity {
     private void viewResult(File file) {
         Intent view = new Intent(Intent.ACTION_VIEW);
         view.addCategory(Intent.CATEGORY_DEFAULT);
-        view.setDataAndType(Uri.fromFile(file), VIDEO_AVC);
+        view.setDataAndType(Uri.fromFile(file), mVideoCodecType.getSelectedItem());
         view.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
             startActivity(view);

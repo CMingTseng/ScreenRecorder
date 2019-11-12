@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Screen Recorder</string>
-    <string name="video_encode_config_h_264_avc">Video Encode Config (H.264 AVC)</string>
+    <string name="video_encode_config_h_264_avc">Video Encode Config </string>
     <string name="video_encoder">Video Encoder</string>
     <string name="resolution">Resolution</string>
     <string name="bitrate">Bitrate (kbps)</string>
