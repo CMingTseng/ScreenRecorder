@@ -32,7 +32,6 @@ import net.yrom.config.VideoEncodeConfig;
 import net.yrom.encoder.BaseEncoder;
 import net.yrom.encoder.Encoder;
 import net.yrom.encoder.video.VideoEncoder;
-import net.yrom.screenrecorder.BuildConfig;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

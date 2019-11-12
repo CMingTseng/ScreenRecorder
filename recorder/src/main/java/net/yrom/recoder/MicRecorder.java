@@ -34,7 +34,6 @@ import net.yrom.config.AudioEncodeConfig;
 import net.yrom.encoder.BaseEncoder;
 import net.yrom.encoder.Encoder;
 import net.yrom.encoder.audio.AudioEncoder;
-import net.yrom.screenrecorder.BuildConfig;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
