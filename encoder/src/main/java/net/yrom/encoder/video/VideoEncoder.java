@@ -37,7 +37,7 @@ public class VideoEncoder extends BaseEncoder {
     private Surface mSurface;
 
     public VideoEncoder(VideoEncodeConfig config) {
-        super(config.codecName);
+        super(config.mCodecName);
         this.mConfig = config;
     }
 

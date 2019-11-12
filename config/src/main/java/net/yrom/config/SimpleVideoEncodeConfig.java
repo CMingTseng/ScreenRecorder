@@ -31,8 +31,8 @@ public class SimpleVideoEncodeConfig extends EncodeConfig {
     public int width;
     public int height;
     protected int bitrate;
-    private final int framerate;
-    private final int iframeInterval;
+    protected int framerate;
+    protected int iframeInterval;
     private static final int FPS = 30;
 
     /**

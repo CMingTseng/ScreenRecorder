@@ -303,8 +303,7 @@ public class MainActivity extends Activity {
         int iframe = getSelectedIFrameInterval();
         int bitrate = getSelectedVideoBitrate();
         MediaCodecInfo.CodecProfileLevel profileLevel = getSelectedProfileLevel();
-        return new VideoEncodeConfig(width, height, bitrate,
-                framerate, iframe, codec, VIDEO_AVC, profileLevel);
+        return new VideoEncodeConfig(codec, VIDEO_AVC, width, height, bitrate, framerate, iframe, profileLevel);
     }
 
     private static File getSavingDir() {

@@ -21,21 +21,12 @@ import android.media.MediaFormat;
 
 import net.yrom.utils.MediaUtils;
 
-import java.util.Objects;
-
 /**
  * @author yrom
  * @version 2017/12/3
  */
-public class VideoEncodeConfig {
+public class VideoEncodeConfig extends SimpleVideoEncodeConfig {
     private final static String TAG = "VideoEncodeConfig";
-    public final int width;
-    public final int height;
-    final int bitrate;
-    final int framerate;
-    final int iframeInterval;
-    public final String codecName;
-    final String mimeType;
     final MediaCodecInfo.CodecProfileLevel codecProfileLevel;
 
     /**
@@ -43,14 +34,13 @@ public class VideoEncodeConfig {
      * @param mimeType          video MIME type, cannot be null
      * @param codecProfileLevel profile level for video encoder nullable
      */
-    public VideoEncodeConfig(int width, int height, int bitrate, int framerate, int iframeInterval, String codecName, String mimeType, MediaCodecInfo.CodecProfileLevel codecProfileLevel) {
+    public VideoEncodeConfig(String codecName, String mimeType, int width, int height, int bitrate, int framerate, int iframeInterval, MediaCodecInfo.CodecProfileLevel codecProfileLevel) {
+        super(codecName, mimeType, width, height, bitrate);
         this.width = width;
         this.height = height;
         this.bitrate = bitrate;
         this.framerate = framerate;
         this.iframeInterval = iframeInterval;
-        this.codecName = codecName;
-        this.mimeType = Objects.requireNonNull(mimeType);
         this.codecProfileLevel = codecProfileLevel;
     }
 
@@ -77,7 +67,7 @@ public class VideoEncodeConfig {
                 ", bitrate=" + bitrate +
                 ", framerate=" + framerate +
                 ", iframeInterval=" + iframeInterval +
-                ", codecName='" + codecName + '\'' +
+                ", codecName='" + mCodecName + '\'' +
                 ", mimeType='" + mimeType + '\'' +
                 ", codecProfileLevel=" + (codecProfileLevel == null ? "" : MediaUtils.avcProfileLevelToString(codecProfileLevel)) +
                 '}';
