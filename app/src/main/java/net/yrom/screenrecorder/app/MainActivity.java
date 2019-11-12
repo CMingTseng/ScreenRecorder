@@ -50,8 +50,8 @@ import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import net.yrom.encoder.audio.AudioEncodeConfig;
-import net.yrom.encoder.video.VideoEncodeConfig;
+import net.yrom.config.AudioEncodeConfig;
+import net.yrom.config.VideoEncodeConfig;
 import net.yrom.recoder.ScreenRecorder;
 import net.yrom.screenrecorder.R;
 import net.yrom.utils.MediaUtils;
@@ -203,7 +203,7 @@ public class MainActivity extends Activity {
                                        AudioEncodeConfig audio, File output) {
         final VirtualDisplay display = getOrCreateVirtualDisplay(mediaProjection, video);
         ScreenRecorder r = new ScreenRecorder(video, audio, display, output.getAbsolutePath());
-        r.setCallback(new ScreenRecorder.Callback() {
+        r.setCallback(new ScreenRecorder.ScreenRecorderCallback() {
             long startTime = 0;
 
             @Override

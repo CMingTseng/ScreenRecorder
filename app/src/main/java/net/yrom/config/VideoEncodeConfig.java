@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.yrom.encoder.video;
+package net.yrom.config;
 
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
@@ -34,7 +34,7 @@ public class VideoEncodeConfig {
     final int bitrate;
     final int framerate;
     final int iframeInterval;
-    final String codecName;
+    public final String codecName;
     final String mimeType;
     final MediaCodecInfo.CodecProfileLevel codecProfileLevel;
 
@@ -54,7 +54,7 @@ public class VideoEncodeConfig {
         this.codecProfileLevel = codecProfileLevel;
     }
 
-    MediaFormat toFormat() {
+    public MediaFormat toFormat() {
         MediaFormat format = MediaFormat.createVideoFormat(mimeType, width, height);
         format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
         format.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);

@@ -30,10 +30,11 @@ import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseLongArray;
 
+import net.yrom.config.AudioEncodeConfig;
 import net.yrom.encoder.BaseEncoder;
 import net.yrom.encoder.Encoder;
-import net.yrom.encoder.audio.AudioEncodeConfig;
 import net.yrom.encoder.audio.AudioEncoder;
+import net.yrom.screenrecorder.BuildConfig;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -53,8 +54,6 @@ import static android.os.Build.VERSION_CODES.N;
  */
 class MicRecorder implements Encoder {
     private static final String TAG = "MicRecorder";
-    private static final boolean VERBOSE = false;
-
     private final AudioEncoder mEncoder;
     private final HandlerThread mRecordThread;
     private RecordHandler mRecordHandler;
@@ -72,7 +71,9 @@ class MicRecorder implements Encoder {
         mEncoder = new AudioEncoder(config);
         mSampleRate = config.sampleRate;
         mChannelsSampleRate = mSampleRate * config.channelCount;
-        if (VERBOSE) Log.i(TAG, "in bitrate " + mChannelsSampleRate * 16 /* PCM_16BIT*/);
+        if (BuildConfig.DEBUG) {
+            Log.i(TAG, "in bitrate " + mChannelsSampleRate * 16 /* PCM_16BIT*/);
+        }
         mChannelConfig = config.channelCount == 2 ? AudioFormat.CHANNEL_IN_STEREO : AudioFormat.CHANNEL_IN_MONO;
         mRecordThread = new HandlerThread(TAG);
     }
@@ -113,7 +114,7 @@ class MicRecorder implements Encoder {
     }
 
     void releaseOutputBuffer(int index) {
-        if (VERBOSE) Log.d(TAG, "audio encoder released output buffer index=" + index);
+        if (BuildConfig.DEBUG) Log.d(TAG, "audio encoder released output buffer index=" + index);
         Message.obtain(mRecordHandler, MSG_RELEASE_OUTPUT, index, 0).sendToTarget();
     }
 
@@ -192,7 +193,7 @@ class MicRecorder implements Encoder {
                 case MSG_FEED_INPUT:
                     if (!mForceStop.get()) {
                         int index = pollInput();
-                        if (VERBOSE)
+                        if (BuildConfig.DEBUG)
                             Log.d(TAG, "audio encoder returned input buffer index=" + index);
                         if (index >= 0) {
                             feedAudioEncoder(index);
@@ -200,7 +201,7 @@ class MicRecorder implements Encoder {
                             if (!mForceStop.get()) sendEmptyMessage(MSG_DRAIN_OUTPUT);
                         } else {
                             // try later...
-                            if (VERBOSE) Log.i(TAG, "try later to poll input buffer");
+                            if (BuildConfig.DEBUG) Log.i(TAG, "try later to poll input buffer");
                             sendEmptyMessageDelayed(MSG_FEED_INPUT, mPollRate);
                         }
                     }
@@ -212,7 +213,7 @@ class MicRecorder implements Encoder {
                 case MSG_RELEASE_OUTPUT:
                     mEncoder.releaseOutputBuffer(msg.arg1);
                     mMuxingOutputBufferIndices.poll(); // Nobody care what it exactly is.
-                    if (VERBOSE) Log.d(TAG, "audio encoder released output buffer index="
+                    if (BuildConfig.DEBUG) Log.d(TAG, "audio encoder released output buffer index="
                             + msg.arg1 + ", remaining=" + mMuxingOutputBufferIndices.size());
                     pollInputIfNeed();
                     break;
@@ -239,7 +240,8 @@ class MicRecorder implements Encoder {
                     info = new MediaCodec.BufferInfo();
                 }
                 int index = mEncoder.getEncoder().dequeueOutputBuffer(info, 1);
-                if (VERBOSE) Log.d(TAG, "audio encoder returned output buffer index=" + index);
+                if (BuildConfig.DEBUG)
+                    Log.d(TAG, "audio encoder returned output buffer index=" + index);
                 if (index == INFO_OUTPUT_FORMAT_CHANGED) {
                     mCallbackDelegate.onOutputFormatChanged(mEncoder, mEncoder.getEncoder().getOutputFormat());
                 }
@@ -279,8 +281,8 @@ class MicRecorder implements Encoder {
         int read = 0;
         if (!eos) {
             read = r.read(frame, limit);
-            if (VERBOSE) Log.d(TAG, "Read frame data size " + read + " for index "
-                    + index + " buffer : " + offset + ", " + limit);
+            if (BuildConfig.DEBUG)
+                Log.d(TAG, "Read frame data size " + read + " for index " + index + " buffer : " + offset + ", " + limit);
             if (read < 0) {
                 read = 0;
             }
@@ -293,8 +295,8 @@ class MicRecorder implements Encoder {
             flags = BUFFER_FLAG_END_OF_STREAM;
         }
         // feed frame to encoder
-        if (VERBOSE) Log.d(TAG, "Feed codec index=" + index + ", presentationTimeUs="
-                + pstTs + ", flags=" + flags);
+        if (BuildConfig.DEBUG)
+            Log.d(TAG, "Feed codec index=" + index + ", presentationTimeUs=" + pstTs + ", flags=" + flags);
         mEncoder.queueInputBuffer(index, offset, read, pstTs, flags);
     }
 
@@ -321,7 +323,7 @@ class MicRecorder implements Encoder {
         } else {
             currentUs = lastFrameUs;
         }
-        if (VERBOSE)
+        if (BuildConfig.DEBUG)
             Log.i(TAG, "count samples pts: " + currentUs + ", time pts: " + timeUs + ", samples: " + samples);
         // maybe too late to acquire sample data
         if (timeUs - currentUs >= (frameUs << 1)) {
@@ -335,22 +337,16 @@ class MicRecorder implements Encoder {
     private static AudioRecord createAudioRecord(int sampleRateInHz, int channelConfig, int audioFormat) {
         int minBytes = AudioRecord.getMinBufferSize(sampleRateInHz, channelConfig, audioFormat);
         if (minBytes <= 0) {
-            Log.e(TAG, String.format(Locale.US, "Bad arguments: getMinBufferSize(%d, %d, %d)",
-                    sampleRateInHz, channelConfig, audioFormat));
+            Log.e(TAG, String.format(Locale.US, "Bad arguments: getMinBufferSize(%d, %d, %d)", sampleRateInHz, channelConfig, audioFormat));
             return null;
         }
-        AudioRecord record = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                sampleRateInHz,
-                channelConfig,
-                audioFormat,
-                minBytes * 2);
-
+        AudioRecord record = new AudioRecord(MediaRecorder.AudioSource.MIC, sampleRateInHz, channelConfig, audioFormat, minBytes * 2);
         if (record.getState() == AudioRecord.STATE_UNINITIALIZED) {
             Log.e(TAG, String.format(Locale.US, "Bad arguments to new AudioRecord %d, %d, %d",
                     sampleRateInHz, channelConfig, audioFormat));
             return null;
         }
-        if (VERBOSE) {
+        if (BuildConfig.DEBUG) {
             Log.i(TAG, "created AudioRecord " + record + ", MinBufferSize= " + minBytes);
             if (Build.VERSION.SDK_INT >= N) {
                 Log.d(TAG, " size in frame " + record.getBufferSizeInFrames());

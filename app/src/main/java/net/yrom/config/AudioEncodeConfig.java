@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.yrom.encoder.audio;
+package net.yrom.config;
 
 import android.media.MediaFormat;
 
@@ -26,7 +26,7 @@ import java.util.Objects;
  */
 public class AudioEncodeConfig {
     private final static String TAG = "AudioEncodeConfig";
-    final String codecName;
+    public final String codecName;
     final String mimeType;
     final int bitRate;
     public final int sampleRate;
@@ -42,7 +42,7 @@ public class AudioEncodeConfig {
         this.profile = profile;
     }
 
-    MediaFormat toFormat() {
+    public MediaFormat toFormat() {
         MediaFormat format = MediaFormat.createAudioFormat(mimeType, sampleRate, channelCount);
         format.setInteger(MediaFormat.KEY_AAC_PROFILE, profile);
         format.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);

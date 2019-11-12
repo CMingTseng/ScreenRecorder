@@ -21,6 +21,7 @@ import android.media.MediaFormat;
 import android.util.Log;
 import android.view.Surface;
 
+import net.yrom.config.VideoEncodeConfig;
 import net.yrom.encoder.BaseEncoder;
 
 import java.util.Objects;

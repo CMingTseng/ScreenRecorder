@@ -18,6 +18,7 @@ package net.yrom.encoder.audio;
 
 import android.media.MediaFormat;
 
+import net.yrom.config.AudioEncodeConfig;
 import net.yrom.encoder.BaseEncoder;
 
 /**
