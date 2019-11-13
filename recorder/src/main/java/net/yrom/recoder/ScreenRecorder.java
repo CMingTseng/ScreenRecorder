@@ -44,10 +44,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ScreenRecorder {
     private static final String TAG = "ScreenRecorder";
     private static final int INVALID_INDEX = -1;
+    private static final int MSG_START = 0;
+    private static final int MSG_STOP = 1;
+    private static final int MSG_ERROR = 2;
+    private static final int STOP_WITH_EOS = 1;
     private String mDstPath;
     private VideoEncoder mVideoEncoder;
     private MicRecorder mAudioEncoder;
-
+    private long mVideoPtsOffset, mAudioPtsOffset;
     private MediaFormat mVideoOutputFormat = null, mAudioOutputFormat = null;
     private int mVideoTrackIndex = INVALID_INDEX, mAudioTrackIndex = INVALID_INDEX;
     private MediaMuxer mMuxer;
@@ -66,6 +70,13 @@ public class ScreenRecorder {
     private LinkedList<MediaCodec.BufferInfo> mPendingAudioEncoderBufferInfos = new LinkedList<>();
     private LinkedList<MediaCodec.BufferInfo> mPendingVideoEncoderBufferInfos = new LinkedList<>();
 
+    public interface ScreenRecorderCallback {
+        void onStop(Throwable error);
+
+        void onStart();
+
+        void onRecording(long presentationTimeUs);
+    }
     /**
      * @param display for {@link VirtualDisplay#setSurface(Surface)}
      * @param dstPath saving path
@@ -77,26 +88,6 @@ public class ScreenRecorder {
         mAudioEncoder = audio == null ? null : new MicRecorder(audio);
     }
 
-    /**
-     * stop task
-     */
-    public final void quit() {
-        mForceQuit.set(true);
-        if (!mIsRunning.get()) {
-            release();
-        } else {
-            signalStop(false);
-        }
-    }
-
-    public void start() {
-        if (mWorker != null) throw new IllegalStateException();
-        mWorker = new HandlerThread(TAG);
-        mWorker.start();
-        mHandler = new CallbackHandler(mWorker.getLooper());
-        mHandler.sendEmptyMessage(MSG_START);
-    }
-
     public void setCallback(ScreenRecorderCallback callback) {
         mCallback = callback;
     }
@@ -104,19 +95,6 @@ public class ScreenRecorder {
     public String getSavedPath() {
         return mDstPath;
     }
-
-    public interface ScreenRecorderCallback {
-        void onStop(Throwable error);
-
-        void onStart();
-
-        void onRecording(long presentationTimeUs);
-    }
-
-    private static final int MSG_START = 0;
-    private static final int MSG_STOP = 1;
-    private static final int MSG_ERROR = 2;
-    private static final int STOP_WITH_EOS = 1;
 
     private class CallbackHandler extends Handler {
         CallbackHandler(Looper looper) {
@@ -149,21 +127,6 @@ public class ScreenRecorder {
         }
     }
 
-    private void signalEndOfStream() {
-        MediaCodec.BufferInfo eos = new MediaCodec.BufferInfo();
-        ByteBuffer buffer = ByteBuffer.allocate(0);
-        eos.set(0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
-        if (BuildConfig.DEBUG) Log.i(TAG, "Signal EOS to muxer ");
-        if (mVideoTrackIndex != INVALID_INDEX) {
-            writeSampleData(mVideoTrackIndex, eos, buffer);
-        }
-        if (mAudioTrackIndex != INVALID_INDEX) {
-            writeSampleData(mAudioTrackIndex, eos, buffer);
-        }
-        mVideoTrackIndex = INVALID_INDEX;
-        mAudioTrackIndex = INVALID_INDEX;
-    }
-
     private void record() {
         if (mIsRunning.get() || mForceQuit.get()) {
             throw new IllegalStateException();
@@ -184,6 +147,21 @@ public class ScreenRecorder {
         mVirtualDisplay.setSurface(mVideoEncoder.getInputSurface());
         if (BuildConfig.DEBUG)
             Log.d(TAG, "set surface to display: " + mVirtualDisplay.getDisplay());
+    }
+
+    private void signalEndOfStream() {
+        MediaCodec.BufferInfo eos = new MediaCodec.BufferInfo();
+        ByteBuffer buffer = ByteBuffer.allocate(0);
+        eos.set(0, 0, 0, MediaCodec.BUFFER_FLAG_END_OF_STREAM);
+        if (BuildConfig.DEBUG) Log.i(TAG, "Signal EOS to muxer ");
+        if (mVideoTrackIndex != INVALID_INDEX) {
+            writeSampleData(mVideoTrackIndex, eos, buffer);
+        }
+        if (mAudioTrackIndex != INVALID_INDEX) {
+            writeSampleData(mAudioTrackIndex, eos, buffer);
+        }
+        mVideoTrackIndex = INVALID_INDEX;
+        mAudioTrackIndex = INVALID_INDEX;
     }
 
     private void muxVideo(int index, MediaCodec.BufferInfo buffer) {
@@ -265,8 +243,6 @@ public class ScreenRecorder {
                 Log.i(TAG, "Sent " + buffer.size + " bytes to MediaMuxer on track " + track);
         }
     }
-
-    private long mVideoPtsOffset, mAudioPtsOffset;
 
     private void resetAudioPts(MediaCodec.BufferInfo buffer) {
         if (mAudioPtsOffset == 0) {
@@ -462,6 +438,26 @@ public class ScreenRecorder {
             mMuxer = null;
         }
         mHandler = null;
+    }
+
+    /**
+     * stop task
+     */
+    public final void quit() {
+        mForceQuit.set(true);
+        if (!mIsRunning.get()) {
+            release();
+        } else {
+            signalStop(false);
+        }
+    }
+
+    public void start() {
+        if (mWorker != null) throw new IllegalStateException();
+        mWorker = new HandlerThread(TAG);
+        mWorker.start();
+        mHandler = new CallbackHandler(mWorker.getLooper());
+        mHandler.sendEmptyMessage(MSG_START);
     }
 
     @Override
