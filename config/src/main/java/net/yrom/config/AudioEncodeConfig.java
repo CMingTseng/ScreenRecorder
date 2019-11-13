@@ -18,23 +18,24 @@ package net.yrom.config;
 
 import android.media.MediaFormat;
 
-import java.util.Objects;
-
 /**
  * @author yrom
  * @version 2017/12/3
  */
 public class AudioEncodeConfig extends EncodeConfig {
     private final static String TAG = "AudioEncodeConfig";
-    final String mimeType;
+
     final int bitRate;
     public final int sampleRate;
     public final int channelCount;
     final int profile;
 
-    public AudioEncodeConfig(String codecName, String mimeType, int bitRate, int sampleRate, int channelCount, int profile) {
-        super(codecName);
-        this.mimeType = Objects.requireNonNull(mimeType);
+    /**
+     * @param codecName    selected codec name, maybe null
+     * @param codeMIMEType video MIME type, cannot be null
+     */
+    public AudioEncodeConfig(String codecName, String codeMIMEType, int bitRate, int sampleRate, int channelCount, int profile) {
+        super(codecName, codeMIMEType);
         this.bitRate = bitRate;
         this.sampleRate = sampleRate;
         this.channelCount = channelCount;
@@ -42,7 +43,7 @@ public class AudioEncodeConfig extends EncodeConfig {
     }
 
     public MediaFormat toFormat() {
-        MediaFormat format = MediaFormat.createAudioFormat(mimeType, sampleRate, channelCount);
+        MediaFormat format = MediaFormat.createAudioFormat(mMIMEType, sampleRate, channelCount);
         format.setInteger(MediaFormat.KEY_AAC_PROFILE, profile);
         format.setInteger(MediaFormat.KEY_BIT_RATE, bitRate);
         //format.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 4096 * 4);
@@ -53,7 +54,7 @@ public class AudioEncodeConfig extends EncodeConfig {
     public String toString() {
         return "AudioEncodeConfig{" +
                 "codecName='" + mCodecName + '\'' +
-                ", mimeType='" + mimeType + '\'' +
+                ", mimeType='" + mMIMEType + '\'' +
                 ", bitRate=" + bitRate +
                 ", sampleRate=" + sampleRate +
                 ", channelCount=" + channelCount +

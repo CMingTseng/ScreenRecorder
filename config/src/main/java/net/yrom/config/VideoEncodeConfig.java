@@ -30,8 +30,6 @@ public class VideoEncodeConfig extends SimpleVideoEncodeConfig {
     final MediaCodecInfo.CodecProfileLevel codecProfileLevel;
 
     /**
-     * @param codecName         selected codec name, maybe null
-     * @param mimeType          video MIME type, cannot be null
      * @param codecProfileLevel profile level for video encoder nullable
      */
     public VideoEncodeConfig(String codecName, String mimeType, int width, int height, int bitrate, int framerate, int iframeInterval, MediaCodecInfo.CodecProfileLevel codecProfileLevel) {
@@ -45,18 +43,26 @@ public class VideoEncodeConfig extends SimpleVideoEncodeConfig {
     }
 
     public MediaFormat toFormat() {
-        MediaFormat format = MediaFormat.createVideoFormat(mimeType, width, height);
-        format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-        format.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
-        format.setInteger(MediaFormat.KEY_FRAME_RATE, framerate);
-        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, iframeInterval);
+        final MediaFormat mediaformat = MediaFormat.createVideoFormat(mMIMEType, width, height);
+        switch (mMIMEType) {
+            case MediaFormat.MIMETYPE_VIDEO_AVC:
+                mediaformat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
+                break;
+            case MediaFormat.MIMETYPE_VIDEO_VP8:
+                mediaformat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatYUV420Flexible);
+                break;
+        }
+        mediaformat.setInteger(MediaFormat.KEY_BIT_RATE, bitrate);
+        mediaformat.setInteger(MediaFormat.KEY_FRAME_RATE, framerate);
+        mediaformat.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, iframeInterval);
+        mediaformat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, 0);
         if (codecProfileLevel != null && codecProfileLevel.profile != 0 && codecProfileLevel.level != 0) {
-            format.setInteger(MediaFormat.KEY_PROFILE, codecProfileLevel.profile);
-            format.setInteger("level", codecProfileLevel.level);
+            mediaformat.setInteger(MediaFormat.KEY_PROFILE, codecProfileLevel.profile);
+            mediaformat.setInteger("level", codecProfileLevel.level);
         }
         // maybe useful
         // format.setInteger(MediaFormat.KEY_REPEAT_PREVIOUS_FRAME_AFTER, 10_000_000);
-        return format;
+        return mediaformat;
     }
 
     @Override
@@ -68,7 +74,7 @@ public class VideoEncodeConfig extends SimpleVideoEncodeConfig {
                 ", framerate=" + framerate +
                 ", iframeInterval=" + iframeInterval +
                 ", codecName='" + mCodecName + '\'' +
-                ", mimeType='" + mimeType + '\'' +
+                ", mimeType='" + mMIMEType + '\'' +
                 ", codecProfileLevel=" + (codecProfileLevel == null ? "" : MediaUtils.avcProfileLevelToString(codecProfileLevel)) +
                 '}';
     }

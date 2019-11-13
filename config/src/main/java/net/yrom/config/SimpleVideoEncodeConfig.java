@@ -19,15 +19,12 @@ package net.yrom.config;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 
-import java.util.Objects;
-
 /**
  * @author yrom
  * @version 2017/12/3
  */
 public class SimpleVideoEncodeConfig extends EncodeConfig {
     private final static String TAG = "SimpleVideoEncodeConfig";
-    public String mimeType;
     public int width;
     public int height;
     protected int bitrate;
@@ -35,13 +32,8 @@ public class SimpleVideoEncodeConfig extends EncodeConfig {
     protected int iframeInterval;
     private static final int FPS = 30;
 
-    /**
-     * @param codecName selected codec name, maybe null
-     * @param mimeType  video MIME type, cannot be null
-     */
-    public SimpleVideoEncodeConfig(String codecName, String mimeType, int width, int height, int bitrate) {
-        super(codecName);
-        this.mimeType = Objects.requireNonNull(mimeType);
+    public SimpleVideoEncodeConfig(String codecName, String codeMIMEType, int width, int height, int bitrate) {
+        super(codecName, codeMIMEType);
         this.width = width;
         this.height = height;
         this.bitrate = bitrate;
@@ -50,8 +42,8 @@ public class SimpleVideoEncodeConfig extends EncodeConfig {
     }
 
     public MediaFormat toMediaFormat() {
-        final MediaFormat mediaformat = MediaFormat.createVideoFormat(mimeType, width, height);
-        switch (this.mimeType) {
+        final MediaFormat mediaformat = MediaFormat.createVideoFormat(mMIMEType, width, height);
+        switch (mMIMEType) {
             case MediaFormat.MIMETYPE_VIDEO_AVC:
                 mediaformat.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
                 break;
@@ -77,7 +69,7 @@ public class SimpleVideoEncodeConfig extends EncodeConfig {
                 ", framerate=" + framerate +
                 ", iframeInterval=" + iframeInterval +
                 ", codecName='" + mCodecName + '\'' +
-                ", mimeType='" + mimeType +
+                ", mimeType='" + mMIMEType +
                 '}';
     }
 }
