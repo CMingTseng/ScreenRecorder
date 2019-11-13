@@ -240,7 +240,7 @@ public class MainActivity extends Activity {
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd-HHmmss", Locale.US);
         final File file = new File(dir, "Screenshots-" + format.format(new Date())
                 + "-" + video.width + "x" + video.height + ".mp4");
-        Log.d("@@", "Create recorder with :" + video + " \n " + audio + "\n " + file);
+        Log.d(TAG, "Create recorder with :" + video + " \n " + audio + "\n " + file);
         mRecorder = newRecorder(mediaProjection, video, audio, file);
         if (hasPermissions()) {
             startRecorder();
@@ -258,8 +258,7 @@ public class MainActivity extends Activity {
         }
     };
 
-    private ScreenRecorder newRecorder(MediaProjection mediaProjection, VideoEncodeConfig video,
-                                       AudioEncodeConfig audio, File output) {
+    private ScreenRecorder newRecorder(MediaProjection mediaProjection, VideoEncodeConfig video, AudioEncodeConfig audio, File output) {
         final VirtualDisplay display = getOrCreateVirtualDisplay(mediaProjection, video);
         ScreenRecorder r = new ScreenRecorder(video, audio, display, output.getAbsolutePath());
         r.setCallback(new ScreenRecorder.ScreenRecorderCallback() {
@@ -326,7 +325,7 @@ public class MainActivity extends Activity {
         int channelCount = getSelectedAudioChannelCount();
         int profile = getSelectedAudioProfile();
 
-        return new AudioEncodeConfig(mAudioCodecType.getSelectedItem(), codec, bitrate, samplerate, channelCount, profile);
+        return new AudioEncodeConfig(codec, mAudioCodecType.getSelectedItem(), bitrate, samplerate, channelCount, profile);
     }
 
     private VideoEncodeConfig createVideoConfig() {
@@ -344,7 +343,7 @@ public class MainActivity extends Activity {
         int iframe = getSelectedIFrameInterval();
         int bitrate = getSelectedVideoBitrate();
         MediaCodecInfo.CodecProfileLevel profileLevel = getSelectedProfileLevel();
-        return new VideoEncodeConfig(mVideoCodecType.getSelectedItem(), codec, width, height, bitrate, framerate, iframe, profileLevel);
+        return new VideoEncodeConfig(codec, mVideoCodecType.getSelectedItem(), width, height, bitrate, framerate, iframe, profileLevel);
     }
 
     private static File getSavingDir() {
