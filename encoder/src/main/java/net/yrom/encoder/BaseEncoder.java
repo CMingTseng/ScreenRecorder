@@ -31,6 +31,33 @@ import java.util.Objects;
  */
 public abstract class BaseEncoder implements Encoder {
     private final static String TAG = "BaseEncoder";
+    private String mCodecName;
+    private MediaCodec mEncoder;
+    private BaseEncoderCallback mCallback;
+    /**
+     * let media codec run async mode if mCallback != null
+     */
+    private MediaCodec.Callback mCodecCallback = new MediaCodec.Callback() {
+        @Override
+        public void onInputBufferAvailable(MediaCodec codec, int index) {
+            mCallback.onInputBufferAvailable(BaseEncoder.this, index);
+        }
+
+        @Override
+        public void onOutputBufferAvailable(MediaCodec codec, int index, MediaCodec.BufferInfo info) {
+            mCallback.onOutputBufferAvailable(BaseEncoder.this, index, info);
+        }
+
+        @Override
+        public void onError(MediaCodec codec, MediaCodec.CodecException e) {
+            mCallback.onError(BaseEncoder.this, e);
+        }
+
+        @Override
+        public void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
+            mCallback.onOutputFormatChanged(BaseEncoder.this, format);
+        }
+    };
 
     public static abstract class BaseEncoderCallback implements EncoderCallback {
         void onInputBufferAvailable(BaseEncoder encoder, int index) {
@@ -41,9 +68,6 @@ public abstract class BaseEncoder implements Encoder {
 
         public void onOutputBufferAvailable(BaseEncoder encoder, int index, MediaCodec.BufferInfo info) {
         }
-    }
-
-    public BaseEncoder() {
     }
 
     public BaseEncoder(String codecName) {
@@ -105,7 +129,7 @@ public abstract class BaseEncoder implements Encoder {
     /**
      * create a new instance of MediaCodec
      */
-    private MediaCodec createEncoder(String type) throws IOException {
+    private MediaCodec createEncoder(String mimetype) throws IOException {
         try {
             // use codec name first
             if (this.mCodecName != null) {
@@ -114,7 +138,7 @@ public abstract class BaseEncoder implements Encoder {
         } catch (IOException e) {
             Log.w(TAG, "Create MediaCodec by name '" + mCodecName + "' failure!", e);
         }
-        return MediaCodec.createEncoderByType(type);
+        return MediaCodec.createEncoderByType(mimetype);
     }
 
     /**
@@ -179,32 +203,4 @@ public abstract class BaseEncoder implements Encoder {
             mEncoder = null;
         }
     }
-
-    private String mCodecName;
-    private MediaCodec mEncoder;
-    private BaseEncoderCallback mCallback;
-    /**
-     * let media codec run async mode if mCallback != null
-     */
-    private MediaCodec.Callback mCodecCallback = new MediaCodec.Callback() {
-        @Override
-        public void onInputBufferAvailable(MediaCodec codec, int index) {
-            mCallback.onInputBufferAvailable(BaseEncoder.this, index);
-        }
-
-        @Override
-        public void onOutputBufferAvailable(MediaCodec codec, int index, MediaCodec.BufferInfo info) {
-            mCallback.onOutputBufferAvailable(BaseEncoder.this, index, info);
-        }
-
-        @Override
-        public void onError(MediaCodec codec, MediaCodec.CodecException e) {
-            mCallback.onError(BaseEncoder.this, e);
-        }
-
-        @Override
-        public void onOutputFormatChanged(MediaCodec codec, MediaFormat format) {
-            mCallback.onOutputFormatChanged(BaseEncoder.this, format);
-        }
-    };
 }

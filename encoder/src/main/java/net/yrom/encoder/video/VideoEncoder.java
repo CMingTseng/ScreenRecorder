@@ -23,6 +23,7 @@ import android.view.Surface;
 
 import net.yrom.config.VideoEncodeConfig;
 import net.yrom.encoder.BaseEncoder;
+import net.yrom.encoder.BuildConfig;
 
 import java.util.Objects;
 
@@ -32,7 +33,6 @@ import java.util.Objects;
  */
 public class VideoEncoder extends BaseEncoder {
     private final static String TAG = "VideoEncoder";
-    private static final boolean VERBOSE = false;
     private VideoEncodeConfig mConfig;
     private Surface mSurface;
 
@@ -44,7 +44,7 @@ public class VideoEncoder extends BaseEncoder {
     @Override
     protected void onEncoderConfigured(MediaCodec encoder) {
         mSurface = encoder.createInputSurface();
-        if (VERBOSE) Log.i(TAG, "VideoEncoder create input surface: " + mSurface);
+        if (BuildConfig.DEBUG) Log.e(TAG, "VideoEncoder create input surface: " + mSurface);
     }
 
     @Override
